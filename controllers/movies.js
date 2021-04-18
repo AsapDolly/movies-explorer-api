@@ -40,10 +40,10 @@ function createMovie(req, res, next) {
 }
 
 function deleteMovie(req, res, next) {
-  MovieModel.findById(req.params.movieId)
+  MovieModel.findById(req.params._id).select('+owner')
     .then((data) => {
       if (data.owner.equals(req.user._id)) {
-        MovieModel.findByIdAndRemove(req.params.movieId)
+        MovieModel.findByIdAndRemove(req.params._id)
           .orFail(() => {
             throw new NotFoundError('Фильм не найден');
           })

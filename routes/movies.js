@@ -17,15 +17,15 @@ router.post('/', celebrate({
     image: Joi.string().required().custom(validateURL, 'URL validation'),
     trailer: Joi.string().required().custom(validateURL, 'URL validation'),
     thumbnail: Joi.string().required().custom(validateURL, 'URL validation'),
-    movieId: Joi.string().required(),
+    movieId: Joi.number().required(),
     nameRU: Joi.string().required(),
     nameEN: Joi.string().required(),
   }),
 }), createMovie);
 
-router.delete('/:movieId', celebrate({
+router.delete('/:_id', celebrate({
   params: Joi.object().keys({
-    movieId: Joi.objectId(),
+    _id: Joi.objectId(),
   }),
 }), deleteMovie);
 
