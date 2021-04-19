@@ -1,6 +1,4 @@
-const router = require('express').Router();
-
-router.use((err, req, res, next) => {
+const centralizedErrorHandler = (err, req, res, next) => {
   const { statusCode = 500, message } = err;
 
   res
@@ -11,6 +9,6 @@ router.use((err, req, res, next) => {
         : message,
     });
   next();
-});
+};
 
-module.exports = router;
+module.exports = { centralizedErrorHandler };

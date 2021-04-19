@@ -8,7 +8,7 @@ const helmet = require('helmet');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const mainRouter = require('./routes/index');
-const errorRouter = require('./errors/index');
+const { centralizedErrorHandler } = require('./errors/index');
 
 const { PORT = 3000, NODE_ENV, DB_CONNECTION_STRING } = process.env;
 
@@ -42,7 +42,7 @@ mongoose.connect(NODE_ENV === 'production' ? DB_CONNECTION_STRING : 'mongodb://l
 app.use(mainRouter);
 app.use(errorLogger);
 app.use(errors());
-app.use(errorRouter);
+app.use(centralizedErrorHandler);
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);

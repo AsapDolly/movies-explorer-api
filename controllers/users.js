@@ -22,7 +22,7 @@ function createUser(req, res, next) {
         const validationError = new BadRequestErr('Переданы некорректные данные');
         return next(validationError);
       }
-      if (err.code === MONGO_DUPLICATE_ERROR_CODE) {
+      if (err.name === 'MongoError' && err.code === MONGO_DUPLICATE_ERROR_CODE) {
         const duplicateError = new ConflictErr('Такой пользователь уже существует');
         return next(duplicateError);
       }

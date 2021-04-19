@@ -10,26 +10,22 @@ function getMovies(req, res, next) {
 }
 
 function createMovie(req, res, next) {
-  const {
-    country, director, duration, year, description, image,
-    thumbnail, trailer, nameRU, nameEN, movieId,
-  } = req.body;
+  const { ...data } = req.body;
 
-  MovieModel.create({
-    country,
-    director,
-    duration,
-    year,
-    description,
-    image,
-    thumbnail,
-    trailer,
-    nameRU,
-    nameEN,
-    movieId,
-    owner: req.user._id,
-  })
-    .then((movie) => res.send(movie))
+  MovieModel.create({ ...data, owner: req.user._id })
+    .then((movie) => res.status(201).send({
+      country: movie.country,
+      director: movie.director,
+      duration: movie.duration,
+      year: movie.year,
+      description: movie.description,
+      image: movie.image,
+      thumbnail: movie.thumbnail,
+      trailer: movie.trailer,
+      nameRU: movie.nameRU,
+      nameEN: movie.nameEN,
+      movieId: movie.movieId,
+    }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         const validationError = new BadRequestErr('Переданы некорректные данные');
@@ -41,12 +37,12 @@ function createMovie(req, res, next) {
 
 function deleteMovie(req, res, next) {
   MovieModel.findById(req.params._id).select('+owner')
+    .orFail(() => {
+      throw new NotFoundError('Фильм не найден');
+    })
     .then((data) => {
       if (data.owner.equals(req.user._id)) {
         MovieModel.findByIdAndRemove(req.params._id)
-          .orFail(() => {
-            throw new NotFoundError('Фильм не найден');
-          })
           .then((movie) => res.send({ data: movie }))
           .catch((err) => {
             if (err.name === 'CastError') {
@@ -56,15 +52,10 @@ function deleteMovie(req, res, next) {
             return next(err);
           });
       } else {
-        const forbiddenError = new ForbiddenError('Нет доступа');
-        return next(forbiddenError);
+        throw new ForbiddenError('Нет доступа');
       }
-      return data;
     })
-    .catch(() => {
-      const notFoundError = new NotFoundError('Фильм не найден');
-      return next(notFoundError);
-    });
+    .catch((err) => next(err));
 }
 
 module.exports = {
